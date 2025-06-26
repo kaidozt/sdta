@@ -779,14 +779,15 @@ INSERT INTO `equipos` (`id_equipos`, `modelo`, `serial`, `ident`, `tei`, `user`,
 --
 
 CREATE TABLE `personas` (
-  `id_personas` int(11) NOT NULL,
+  `id_personas` int(11) NOT NULL AUTO_INCREMENT,
   `nombres` varchar(22) DEFAULT NULL,
   `apellidos` varchar(20) DEFAULT NULL,
   `cedula` varchar(12) DEFAULT NULL,
   `ente` varchar(44) DEFAULT NULL,
   `contacto` varchar(14) DEFAULT NULL,
   `entrega` varchar(14) DEFAULT NULL,
-  `id_equipos` int(11) DEFAULT NULL
+  `id_equipos` int(11) DEFAULT NULL,
+  PRIMARY KEY(id_personas),
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --

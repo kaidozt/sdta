@@ -1,33 +1,67 @@
 import { useState } from 'react';
+import axios from "axios";
 
-function BuscarPersona({ personas}) {
+export default function BuscarPersona() {
     const [cedula, setCedula] = useState('');
-    const [resultado, setResultado] = useState(null);
+    const [persona, setPersona] = useState(null);
+    const [error, setError] = useState("");
 
-    const buscar = () => {
-        const encontrada = personas.find(p => p.cedula === cedula);
-        setResultado(encontrada || null);
+    const buscar = async () => {
+        if (!cedula){
+            alert("Ingrese una cédula");
+            return;
+        }
+        try{
+            const res = await axios.get(`http://localhost:8000/personas/${cedula}`);
+            setPersona(res.data);
+            setError("");
+        }catch (err){
+            setPersona(null);
+            setError("Persona no encontrada");
+        }
     };
 
     return (
         <div>
-            <input type="text"
-             placeholder='Ingrese cédula' 
-             value={cedula}
-             onChange={(e) => setCedula(e.target.value)} 
-             />
-             <button onClick={buscar}>Buscar</button>
+    <input
+    placeholder="Cédula"
+    value={cedula}
+    onChange={(e) => setCedula(e.target.value)}
+    style={inputStyle}
+    />
+    <button onClick={buscar} style={buttonStyle}>Buscar Persona</button>
 
-             {resultado ? (
-                <div>
-                    <p><strong>Nombre:</strong> {resultado.nombre}</p>
-                    <p><strong>Cargo:</strong> {resultado.cargo}</p>
-                </div>
-             ) : cedula && (
-                <p>Persona no encontrada.</p>
-             )}
-        </div>
-    );
+    {error && <p style={{ color: "red" }}>{error}</p>}
+
+    {persona && (
+    <div style={{ marginTop: "1rem", textAlign: "left" }}>
+        <p><b>Nombres:</b> {persona.nombres}</p>
+        <p><b>Apellidos:</b> {persona.apellidos}</p>
+        <p><b>Cédula:</b> {persona.cedula}</p>
+        <p><b>Ente:</b> {persona.ente}</p>
+        <p><b>Contacto:</b> {persona.contacto}</p>
+        <p><b>Entrega:</b> {persona.entrega}</p>
+        <p><b>ID Equipo:</b> {persona.id_equipos}</p>
+    </div>
+    )}
+</div>
+);
 }
 
-export default BuscarPersona;
+const inputStyle = {
+    padding: "10px",
+    borderRadius: "6px",
+    border: "1px solid #555",
+    backgroundColor: "#2c2c2c",
+    color: "white",
+    marginRight: "1rem",
+};
+
+const buttonStyle = {
+    backgroundColor: "#4caf50",
+    color: "white",
+    padding: "10px",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer",
+};
