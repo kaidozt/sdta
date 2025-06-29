@@ -1,6 +1,9 @@
 from sqlalchemy import Column, Integer, String, Date, ForeignKey
 from sqlalchemy.orm import relationship
-from database import Base
+from back.database import Base
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
 
 class Persona(Base):
     __tablename__ = "personas"
@@ -11,14 +14,14 @@ class Persona(Base):
     cedula = Column(String(12), index=True)
     ente = Column(String(44))
     contacto = Column(String(14))
-    entrega = Column(Date(14))
+    entrega = Column(Date)
     id_equipos = Column(Integer, ForeignKey("equipos.id_equipos"))
 
     equipo = relationship("Equipo", back_populates="personas")
 
 class Equipo(Base):
-    __tablename_ = "equipos"
-    id_equipos = Column(Integer, primary_key=True, index=11)
+    __tablename__ = "equipos"
+    id_equipos = Column(Integer, primary_key=True, index=True)
     modelo = Column(String(20))
     serial = Column(String(20))
     ident = Column(String(100))
@@ -30,8 +33,11 @@ class Equipo(Base):
     estado = Column(String(100))
     asignado = Column(String(100))
 
+    personas = relationship("Persona", back_populates="equipo")
+    accesorios = relationship("Accesorios", back_populates="equipo")
+
 class Accesorios(Base):
-    __tablename_ = "accesorios"
+    __tablename__ = "accesorios"
 
     id_accesorios = Column(Integer, primary_key=True, index=11)
     fuente = Column(String(50))

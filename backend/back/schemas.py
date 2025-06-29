@@ -4,7 +4,7 @@ from datetime import date
 
 # PERSONA
 class PersonaBase(BaseModel):
-    nombre: str
+    nombres: str
     apellidos: str
     cedula: str
     ente: Optional[str]
@@ -16,9 +16,10 @@ class PersonaCreate(PersonaBase):
     pass
 
 class PersonaOut(PersonaBase):
-    id_persoan: int
-    class Config:
-        orm_mode = True
+    id_personas: int
+    model_config = {
+        "from_attributes": True
+    }
 
 # EQUIPO
 
@@ -39,8 +40,9 @@ class EquipoCreate(EquipoBase):
 
 class EquipoOut(EquipoBase):
     id_equipos: int
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }
 
 
 # ACCESORIOS
@@ -62,6 +64,7 @@ class AccesorioCreate(AccesorioBase):
 
 class AccesorioOut(AccesorioBase):
     id_accesorios: int
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }
 

@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from .database import get_db
 from . import models, schemas
 
 # ========== PERSONAS ==========
@@ -50,3 +51,6 @@ def actualizar_equipo(db: Session, serial: str, equipo_data: schemas.EquipoCreat
         db.commit()
         db.refresh(equipo)
     return equipo
+
+def contar_radios_por_persona(db: Session, cedula: str):
+    return db.query(models.Equipo).filter(models.Equipo.asignado == cedula).count()
