@@ -34,7 +34,6 @@ function BuscarRadio() {
 
     return (
         <div className="max-w-md mx-auto mt-10 bg-white shadow-lg rounded-lg p-6">
-            <h2 className="text-2xl font-bold mb-4 text-center text-blue-700">Buscar Radio por Serial</h2>
             
             <input
                 type="text"
@@ -55,7 +54,8 @@ function BuscarRadio() {
                 <div className="mt-6 bg-gray-100 p-4 rounded shadow-inner">
                     <p><strong>Modelo:</strong> {radio.modelo}</p>
                     <p><strong>Serial:</strong> {radio.serial}</p>
-                    <p><strong>Asignado a:</strong> {persona ? `${persona.nombres} ${persona.apellidos} (Cédula: ${persona.cedula})` : (radio.asignado || 'No asignado')}</p>
+                    <p><strong>Asignado a:</strong> {persona ? `${persona.nombres} ${persona.apellidos}`: (radio.asignado || 'No asignado')}</p>
+                    <p><strong>Cedula del asignado:</strong>{persona ? `${persona.cedula}` : (radio.asignado || 'No asignado')}</p>
                 </div>
             )}
 

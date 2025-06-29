@@ -19,14 +19,23 @@ app.add_middleware(
 )
 
 # RUTAS
+from sqlalchemy.exc import IntegrityError
+
 @app.post("/personas/")
 def agregar_persona(persona: PersonaCreate):
     db = next(get_db())
     db_persona = Persona(**persona.dict())
     db.add(db_persona)
-    db.commit()
-    db.resfresh(db_persona)
-    return {"mensaje": "Persona agregada con exito"}
+    try:
+        db.commit()
+        db.refresh(db_persona)
+        return {"mensaje": "Persona agregada con exito"}
+    except IntegrityError as e:
+        db.rollback()
+        if 'cedula' in str(e.orig):
+            raise HTTPException(status_code=409, detail="Ya existe una persona con esa cédula.")
+        else:
+            raise HTTPException(status_code=400, detail="Error de integridad en la base de datos.")
 
 
 @app.post("/equipos/")

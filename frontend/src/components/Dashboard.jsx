@@ -9,7 +9,7 @@ function Dashboard({ onSeleccion }) {
     ];
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "center"}}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "15px", alignItems: "center"}}>
             {botones.map((btn) =>(
                 <button
                 key={btn.valor}
@@ -18,7 +18,7 @@ function Dashboard({ onSeleccion }) {
                     padding: "12px 24px",
                     fontSize: "1rem",
                     borderRadius: "8px",
-                    border: "1px solid #555",
+                    border: "1px solid #000",
                     backgroundColor: "#333",
                     color: "#fff",
                     cursor: "pointer",

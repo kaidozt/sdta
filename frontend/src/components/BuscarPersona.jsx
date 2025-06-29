@@ -8,19 +8,24 @@ export default function BuscarPersona() {
     const [showRadios, setShowRadios] = useState(false);
 
     const buscar = async () => {
-        if (!cedula){
+        if (!cedula) {
             alert("Ingrese una cédula");
             return;
         }
-        try{
+        try {
             const res = await axios.get(`http://localhost:8000/personas/${cedula}`);
             setPersona(res.data);
             setError("");
-            // Obtener la lista de radios asignados
-            const resRadios = await axios.get(`http://localhost:8000/personas/${cedula}/radios`);
-            setRadios(resRadios.data);
+            // Intentar obtener la lista de radios asignados
+            try {
+                const resRadios = await axios.get(`http://localhost:8000/personas/${cedula}/radios`);
+                setRadios(resRadios.data);
+            } catch (errRadios) {
+                // Si no tiene radios asignados (404), simplemente dejar radios vacío
+                setRadios([]);
+            }
             setShowRadios(false);
-        }catch (err){
+        } catch (err) {
             setPersona(null);
             setRadios([]);
             setError("Persona no encontrada");
@@ -57,6 +62,7 @@ export default function BuscarPersona() {
                     <p><b>Nombres:</b> {persona.nombres}</p>
                     <p><b>Apellidos:</b> {persona.apellidos}</p>
                     <p><b>Cédula:</b> {persona.cedula}</p>
+                    
                     <p><b>Ente:</b> {persona.ente}</p>
                     <p><b>Contacto:</b> {persona.contacto}</p>
                     <p><b>Entrega:</b> {persona.entrega}</p>

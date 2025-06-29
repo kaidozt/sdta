@@ -1,30 +1,38 @@
 import { useState } from "react";
 
-function añadirPersona({ onGuardar }){
+function AñadirPersona({ onGuardar }){
     const [nombre, setNombre] = useState('');
+    const [apellidos, setApellidos] = useState('');
     const [cedula, setCedula] = useState('');
-    const [cargo, setCargo] = useState('');
+    const [ente, setEnte] = useState('');
+    const [contacto, setContacto] = useState('');
+    
 
     const manejarSubmit = (e) => {
         e.preventDefault();
 
-        if (!nombre || !cedula || !cargo){
+        if (!nombre || !apellidos || !cedula || !ente || !contacto){
             alert('Todos los campos son obligatorios');
             return;
         }
 
         const nuevaPersona = {
-            id: Date.now(),
-            nombre,
-            cedula,
-            cargo
+            nombres: nombre,
+            apellidos,
+            cedula: String(cedula),
+            ente: String(ente),
+            contacto: String(contacto),
+            entrega: null
+            
         };
 
         onGuardar(nuevaPersona);
 
         setNombre('');
+        setApellidos('');
         setCedula('');
-        setCargo('');
+        setEnte('');
+        setContacto('');
     };
 
     return(
@@ -37,16 +45,30 @@ function añadirPersona({ onGuardar }){
             />
 
             <input type="text" 
-            placeholder="Cédula"
+            placeholder="Apellidos"
+            value={apellidos}
+            onChange={(e) => setApellidos(e.target.value)}
+            style={inputEstilo}
+            />
+
+            <input type="text" 
+            placeholder="Cedula"
             value={cedula}
             onChange={(e) => setCedula(e.target.value)}
             style={inputEstilo}
             />
 
             <input type="text" 
-            placeholder="Cargo"
-            value={cargo}
-            onChange={(e) => setCargo(e.target.value)}
+            placeholder="Ente"
+            value={ente}
+            onChange={(e) => setEnte(e.target.value)}
+            style={inputEstilo}
+            />
+
+            <input type="text" 
+            placeholder="Contacto"
+            value={contacto}
+            onChange={(e) => setContacto(e.target.value)}
             style={inputEstilo}
             />
             <button type="submit" style={botonEstilo}>Guardar Persona</button>
@@ -71,4 +93,4 @@ const botonEstilo = {
     cursor: "pointer"
 };
 
-export default añadirPersona;
+export default AñadirPersona;

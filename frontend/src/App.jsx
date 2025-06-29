@@ -1,23 +1,59 @@
 import { useState } from 'react';
+import logo from './assets/telecomAragua.jpg';
 import Dashboard from './components/Dashboard';
 import BuscarPersona from './components/BuscarPersona';
 import BuscarRadio from './components/BuscarRadio';
 import AñadirPersona from './components/AñadirPersona';
+import axios from 'axios';
 
 function App() {
   const [vista, setVista] = useState(null);
+  
+  async function handleGuardarPersona(persona){
+    try {
+      await axios.post("http://localhost:8000/personas/", persona);
+      alert("Persona guardada correctamente");
+    } catch(error) {
+      alert("Error al guardar la persona");
+      console.error(error);
+    }
+  }
   return (
     <div 
       style={{
         width: "100vw",
-        minHeight: "100vh",
+        minHeight: "95vh",
         backgroundColor: "#1e1e1e",
         color: "#ffffff",
         display: "flex",
-        justifyContent: "center",
+        flexDirection: "column",
         alignItems: "center",
       }}
     >
+      <header style={{
+        width: "100%",
+        position: "sticky",
+        top: 0,
+        left: 0,
+        background: "#1e1e1e",
+        zIndex: 100,
+        textAlign: "center",
+        padding: "1.5rem 0 1rem 0",
+        borderBottom: "1px solid #333"
+      }}>
+        <img src={logo} alt="Logo"
+        style={ {
+          position: "absolute",
+          left: 24,
+          top: "50%",
+          transform: "translateY(-60%)",
+          borderRadius: "50%",
+          border: "2px solid #fff",
+          height: 75,
+        }}
+        />
+        <h1 style={{ margin: 0, fontSize: "2rem", letterSpacing: 1 }}>Gestión de Radios</h1>
+      </header>
       <div
         style={{
           width: "100%",
@@ -26,11 +62,10 @@ function App() {
           padding: "2rem",
         }}
       >
-        <h1 style={{ marginBottom: "2rem" }}>Gestión de Radios</h1>
-
+        
         {!vista && <Dashboard onSeleccion={setVista} />}
         {vista === "buscarPersona" && <BuscarPersona />}
-        {vista === "añadirPersona" && <AñadirPersona />}
+        {vista === "añadirPersona" && <AñadirPersona   onGuardar={handleGuardarPersona}/>}
         {vista === "buscarRadio" && <BuscarRadio />}
 
         {vista && (
@@ -54,4 +89,5 @@ function App() {
     </div>
   );
 }
+
 export default App;

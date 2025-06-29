@@ -7,10 +7,10 @@ class PersonaBase(BaseModel):
     nombres: str
     apellidos: str
     cedula: str
-    ente: Optional[str]
-    contacto: Optional[str]
-    entrega: Optional[date]
-    id_equipos: Optional[int]
+    ente: Optional[str] = None
+    contacto: Optional[str] = None
+    entrega: Optional[date] = None
+    id_equipos: Optional[int] = None
 
 class PersonaCreate(PersonaBase):
     pass
