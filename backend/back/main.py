@@ -99,35 +99,32 @@ def obtener_cantidad_radios(cedula: str):
 
 @app.put("/equipos/entregar/{serial}")
 def entregar_radio(serial: str, cedula: str):
-    conn = get_db()
-    cursor = conn.cursor()
+    db = next(get_db())
+    # Busca el equipo por serial
+    equipo = db.query(Equipo).filter(Equipo.serial == serial).first()
+    if not equipo:
+        raise HTTPException(status_code=404, detail="Equipo no encontrado")
+    
+    # Busca la persona por cedula
+    persona = db.query(Persona).filter(Persona.cedula == cedula).first()
+    if not persona:
+        raise HTTPException(status_code=404, detail="Persona no encontrada")
+    
+    #Actualiza campos del equipo
+    ente = f"{persona.ente}" if persona.ente else "No especificado"
+    equipo.user = ente
+    equipo.asignado = cedula
+    
+    #Actulaiza los campos de la persona
+    persona.id_equipos = equipo.id_equipos
+    persona.entrega = datetime.date.today()
+
     try:
-        # 1. Obtener el ID del equipo
-        cursor.execute("SELECT id_equipos FROM equipos WHERE serial = %s", (serial,))
-        result = cursor.fetchone()
-        if not result:
-            raise HTTPException(status_code=404, detail="Equipo no encontrado")
-
-        id_equipos = result[0]
-
-        # 2. Actualizar estado del equipo
-        cursor.execute("UPDATE equipos SET estado = 'entregado' WHERE serial = %s", (serial,))
-
-        # 3. Actualizar a la persona
-        fecha_actual = datetime.date.today()
-        cursor.execute(
-            "UPDATE personas SET id_equipos = %s, entrega = %s WHERE cedula = %s",
-            (id_equipos, fecha_actual, cedula)
-        )
-
-        conn.commit()
-        return {"mensaje": "Radio entregado correctamente"}
+        db.commit()
+        return {"mensaje": "Radio entregado con éxito"}
     except Exception as e:
-        conn.rollback()
+        db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        cursor.close()
-        conn.close()
 
 
 @app.put("/personas/{cedula}")

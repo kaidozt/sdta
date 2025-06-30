@@ -5,6 +5,7 @@ import BuscarPersona from './components/BuscarPersona';
 import BuscarRadio from './components/BuscarRadio';
 import AñadirPersona from './components/AñadirPersona';
 import AñadirRadio from './components/AñadirRadio';
+import EntregarRadios from './components/EntregarRadios';
 import axios from 'axios';
 
 function App() {
@@ -78,6 +79,7 @@ function App() {
         {vista === "buscarPersona" && <BuscarPersona/>}
         {vista === "añadirRadio" && <AñadirRadio onGuardar={handleGuardarRadio}/>}
         {vista === "añadirPersona" && <AñadirPersona   onGuardar={handleGuardarPersona}/>}
+        {vista == "entregarRadio" && <EntregarRadios />}
         {vista === "buscarRadio" && <BuscarRadio />}
 
         {vista && (
