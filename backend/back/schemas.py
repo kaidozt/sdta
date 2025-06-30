@@ -28,12 +28,12 @@ class EquipoBase(BaseModel):
     serial: str
     ident: str
     tei: str
-    user: str
+    user: Optional[str] = None
     categoria: str
     tipo: str
     n_bien: str
     estado: str
-    asignado: Optional[str]
+    asignado: Optional[str] = None
 
 class EquipoCreate(EquipoBase):
     pass

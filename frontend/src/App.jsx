@@ -4,6 +4,7 @@ import Dashboard from './components/Dashboard';
 import BuscarPersona from './components/BuscarPersona';
 import BuscarRadio from './components/BuscarRadio';
 import AñadirPersona from './components/AñadirPersona';
+import AñadirRadio from './components/AñadirRadio';
 import axios from 'axios';
 
 function App() {
@@ -15,6 +16,16 @@ function App() {
       alert("Persona guardada correctamente");
     } catch(error) {
       alert("Error al guardar la persona");
+      console.error(error);
+    }
+  }
+
+  async function handleGuardarRadio(radio){
+    try {
+      await axios.post("http://localhost:8000/equipos/", radio);
+      alert("Radio guardado correctamente");
+    } catch(error){
+      alert("Error al guardar el radio");
       console.error(error);
     }
   }
@@ -64,7 +75,8 @@ function App() {
       >
         
         {!vista && <Dashboard onSeleccion={setVista} />}
-        {vista === "buscarPersona" && <BuscarPersona />}
+        {vista === "buscarPersona" && <BuscarPersona/>}
+        {vista === "añadirRadio" && <AñadirRadio onGuardar={handleGuardarRadio}/>}
         {vista === "añadirPersona" && <AñadirPersona   onGuardar={handleGuardarPersona}/>}
         {vista === "buscarRadio" && <BuscarRadio />}
 

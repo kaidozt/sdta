@@ -1,7 +1,7 @@
 function Dashboard({ onSeleccion }) {
     const botones =[
         {texto: "Añadir Personas", valor: "añadirPersona"},
-        {texto: "Añadir Radios", valor: "añadirRadios"},
+        {texto: "Añadir Radios", valor: "añadirRadio"},
         {texto: "Buscar por Cédula", valor: "buscarPersona"},
         {texto: "Buscar por Serial", valor: "buscarRadio"},
         {texto: "Entregar Radio", valor: "entregarRadio"},

@@ -43,9 +43,16 @@ def agregar_radios(equipo: EquipoCreate):
     db = next(get_db())
     db_equipo = Equipo(**equipo.dict())
     db.add(db_equipo)
-    db.commit()
-    db.refresh(db_equipo)
-    return {"mensaje": "Equipo agregado con exito"}
+    try:
+        db.commit()
+        db.refresh(db_equipo)
+        return {"mensaje": "Equipo agregado con exito"}
+    except IntegrityError as e:
+        db.rollback()
+        if 'serial' in str(e.orig):
+            raise HTTPException(status_code=409, detail="Ya existe un equipo con ese serial.")
+        else:
+            raise HTTPException(status_code=400, detail="Error de integridad en la base de datos.")
 
 @app.get("/personas/{cedula}", response_model=PersonaOut)
 def buscar_persona_por_cedula(cedula: str):
