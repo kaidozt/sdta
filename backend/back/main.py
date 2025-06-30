@@ -129,27 +129,67 @@ def entregar_radio(serial: str, cedula: str):
 
 @app.put("/personas/{cedula}")
 def editar_persona(cedula: str, persona: PersonaCreate):
-    conn = get_db()
-    cursor = conn.cursor()
+    db = next(get_db())
+    db_persona = db.query(Persona).filter(Persona.cedula == cedula).first()
+    if not db_persona:
+        raise HTTPException(status_code=404, detail="Persona no encontrada")
+    #Actualiza los campos de persona
+    db_persona.nombres = persona.nombres
+    db_persona.apellidos = persona.apellidos
+    db_persona.ente = persona.ente
+    db_persona.contacto = persona.contacto
+    db_persona.entrega = persona.entrega
     try:
-        cursor.execute(
-            """UPDATE personas SET nombres = %s, apellidos = %s, ente = %s, contacto = %s, entrega = %s, id_equipos = %s
-            WHERE cedula = %s""",
-            (
-                persona.nombres,
-                persona.apellidos,
-                persona.ente,
-                persona.contacto,
-                persona.entrega,
-                persona.id_equipos,
-                cedula
-            )
-        )
-        conn.commit()
-        return {"mensaje": "Datos de persona actualizados"}
+        db.commit()
+        return {"mensaje": "Persona actualizada con éxito"}
+    except IntegrityError as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Error de integridad en la base de datos.")
+
+@app.put("/equipos/{serial}")
+def editar_equipo(serial: str, equipo: EquipoCreate):
+    db = next(get_db())
+    db_equipo = db.query(Equipo).filter(Equipo.serial == serial).first()
+    if not db_equipo:
+        raise HTTPException(status_code=404, detail="Equipo no encontrado")
+    # Actualiza los campos del equipo
+    db_equipo.modelo = equipo.modelo
+    db_equipo.estado = equipo.estado
+    db_equipo.ident = equipo.ident
+    db_equipo.tei = equipo.tei
+    db_equipo.tipo = equipo.tipo
+    db_equipo.n_bien = equipo.n_bien
+    try:
+        db.commit()
+        return {"mensaje": "Equipo actualizado con éxito"}
+    except IntegrityError as e:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="Error de integridad en la base de datos.")
+    
+@app.delete("/personas/{cedula}")
+def eliminar_persona(cedula: str):
+    db = next(get_db())
+    db_persona = db.query(Persona).filter(Persona.cedula == cedula).first()
+    if not db_persona:
+        raise HTTPException(status_code=404, detail="Persona no encontrada")
+    try:
+        db.delete(db_persona)
+        db.commit()
+        return {"mensaje": "Persona eliminada con éxito"}
     except Exception as e:
-        conn.rollback()
+        db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        cursor.close()
-        conn.close()
+
+@app.delete("/equipos/{serial}")
+def eliminar_equipo(serial: str):
+    db = next(get_db())
+    db_equipo = db.query(Equipo).filter(Equipo.serial == serial).first()
+    if not db_equipo:
+        raise HTTPException(status_code=404, detail="Persona no encontrada")
+    try:
+        db.delete(db_equipo)
+        db.commit()
+        return {"mensaje": "Equipo eliminado con éxito"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))

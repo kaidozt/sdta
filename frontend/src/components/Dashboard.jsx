@@ -5,7 +5,7 @@ function Dashboard({ onSeleccion }) {
         {texto: "Buscar por Cédula", valor: "buscarPersona"},
         {texto: "Buscar por Serial", valor: "buscarRadio"},
         {texto: "Entregar Radio", valor: "entregarRadio"},
-        {texto: "Editar Datos", valor: "editar"}
+        {texto: "Editar Datos", valor: "editarDatos"}
     ];
 
     return (
