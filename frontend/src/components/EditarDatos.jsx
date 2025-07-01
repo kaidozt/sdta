@@ -6,9 +6,11 @@ export default function EditarDatos({persona, onActualizar}){
     const [tipo, setTipo] = useState('persona');
     const [datos, setDatos] = useState(null);
     const [mensaje, setMensaje] = useState("");
+    const [cargando, setCargando] = useState(false);
 
     // Busca la persona o el equipo
     const buscar = async () => {
+        setCargando(true);
         setMensaje("");
         setDatos(null);
         try {
@@ -22,21 +24,29 @@ export default function EditarDatos({persona, onActualizar}){
         }catch (error) {
             setMensaje("No encontrado");
         }
+        setCargando(false);
     };
 
     const guardar = async (e) => {
         e.preventDefault();
         setMensaje("");
+        if (tipo === 'persona' && !datos.nombres){
+            setMensaje("El campo 'Nombres' es obligatorio");
+            return;
+        }   
         try {
             if (tipo === 'persona') {
                 await axios.put(`http://localhost:8000/personas/${busqueda}`, datos);
                 setMensaje("Persona actualizada con éxito");
+                setTimeout(() => setMensaje(""), 3000);
             } else {
                 await axios.put(`http://localhost:8000/equipos/${busqueda}`, datos);
                 setMensaje("Equipo actualizado correctamente");
+                setTimeout(() => setMensaje(""), 3000);
             }
         } catch (error) {
             setMensaje("Error al actualizar");
+            setTimeout(() => setMensaje(""), 3000);
         }
     };
 
@@ -46,22 +56,27 @@ export default function EditarDatos({persona, onActualizar}){
 
     const eliminar = async () => {
         setMensaje("");
+        if (!window.confirm("SEGURO QUE DESEAS ELIMINAR ESTE REGISTRO?")) return;
         try {
             if (tipo === 'persona'){
                 await axios.delete(`http://localhost:8000/personas/${busqueda}`)
                 setMensaje("Persona eliminada con éxito");
+                setTimeout(() => setMensaje(""), 3000);
             }else {
                 await axios.delete(`http://localhost:8000/equipos/${busqueda}`);
                 setMensaje("Equipo eliminado con éxito");
+                setTimeout(() => setMensaje(""), 3000);
             }
             setDatos(null);
         }catch (error) {
             setMensaje("Error al eliminar");
+            setTimeout(() => setMensaje(""), 3000);
         }
     };
 
     return (
         <div>
+            <> {cargando && <p style={{color: "#ffa726"}}>Cargando...</p>} </>
             <h2>Editar Datos</h2>
             <select style={inputStyle} value={tipo} onChange={e => setTipo(e.target.value)}>
                 <option value="persona">Persona (por cédula)</option>
@@ -73,13 +88,14 @@ export default function EditarDatos({persona, onActualizar}){
             onChange={e => setBusqueda(e.target.value)}
             style={inputStyle}
             />
-            <button style={buttonStyle} onClick={buscar}>Buscar</button>
+            <button style={buttonStyle} onClick={buscar} disabled={cargando}>{cargando ? "Buscando..." : "Buscar"}</button>
             {mensaje && <p>{mensaje}</p>}
 
             {datos && (
                 <form onSubmit={guardar} style={{ marginTop: 20}}>
                     {tipo === 'persona' ? (
                         <>
+                            
                             <input style={inputStyle} name="nombres" value={datos.nombres} onChange={handleChange}  placeholder="Nombres"/>
                             <input style={inputStyle} name="apellidos" value={datos.apellidos} onChange={handleChange} placeholder="Apellidos" />
                             <input style={inputStyle} name="ente" value={datos.ente || ""} onChange={handleChange} placeholder="Ente" />

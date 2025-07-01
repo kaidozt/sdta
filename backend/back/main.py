@@ -185,7 +185,7 @@ def eliminar_equipo(serial: str):
     db = next(get_db())
     db_equipo = db.query(Equipo).filter(Equipo.serial == serial).first()
     if not db_equipo:
-        raise HTTPException(status_code=404, detail="Persona no encontrada")
+        raise HTTPException(status_code=404, detail="Equipo no encontrada")
     try:
         db.delete(db_equipo)
         db.commit()
