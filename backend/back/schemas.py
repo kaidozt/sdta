@@ -30,9 +30,9 @@ class EquipoBase(BaseModel):
     tei: str
     user: Optional[str] = None
     categoria: str
-    tipo: str
-    n_bien: str
-    estado: str
+    tipo: Optional[str] = None
+    n_bien: Optional[str] = None
+    estado: Optional[str] = None
     asignado: Optional[str] = None
 
 class EquipoCreate(EquipoBase):
@@ -43,7 +43,6 @@ class EquipoOut(EquipoBase):
     model_config = {
         "from_attributes": True
     }
-
 
 # ACCESORIOS
 class AccesorioBase(BaseModel):
