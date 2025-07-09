@@ -12,7 +12,7 @@ app = FastAPI()
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["http://localhost:5173", "http://localhost:5174"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -81,7 +81,7 @@ def radios_asignados(cedula: str):
         raise HTTPException(status_code=404, detail="No se encontraron radios asignados a esta persona")
 
 
-@app.get("/equipos/{serial}", response_model=EquipoOut)
+@app.get("/equipos/buscar/{serial}", response_model=EquipoOut)
 def buscar_equipos_por_serial(serial: str):
     db = next(get_db())
     equipo = db.query(Equipo).filter(Equipo.serial == serial).first()
@@ -193,3 +193,15 @@ def eliminar_equipo(serial: str):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/equipos/totales")
+def total_radios():
+    db = next(get_db())
+    total = db.query(Equipo).count()
+    return {"total_radios": total}
+
+@app.get("/equipos/total")
+def total_radios_alias():
+    db = next(get_db())
+    total = db.query(Equipo).count()
+    return {"total_radios": total}

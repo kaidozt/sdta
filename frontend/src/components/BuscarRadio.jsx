@@ -14,13 +14,17 @@ function BuscarRadio() {
             return;
         }
         try {
-            const res = await axios.get(`http://localhost:8000/equipos/${serial}`);
+            const res = await axios.get(`http://localhost:8000/equipos/buscar/${serial}`);
             setRadio(res.data);
             setError('');
             // Si el radio tiene campo asignado, busca la persona asociada
             if (res.data && res.data.asignado) {
-                const resPersona = await axios.get(`http://localhost:8000/personas/${res.data.asignado}`);
-                setPersona(resPersona.data);
+                try {
+                    const resPersona = await axios.get(`http://localhost:8000/personas/${res.data.asignado}`);
+                    setPersona(resPersona.data);
+                } catch (errPersona) {
+                    setPersona(null);
+                }
             } else {
                 setPersona(null);
             }
@@ -28,7 +32,11 @@ function BuscarRadio() {
         } catch (err) {
             setRadio(null);
             setPersona(null);
-            setError('Radio no encontrado.');
+            if (err.response && err.response.status === 404) {
+                setError('Radio no encontrado.');
+            } else {
+                setError('Error al buscar el radio. Intente de nuevo.');
+            }
         }
     };
 

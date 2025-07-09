@@ -9,20 +9,35 @@ function Dashboard({ onSeleccion }) {
     ];
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", gap: "15px", alignItems: "center"}}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px", alignItems: "flex-start", width: "100%" }}>
             {botones.map((btn) =>(
                 <button
                 key={btn.valor}
                 onClick={() => onSeleccion(btn.valor)}
                 style={{
-                    padding: "12px 24px",
+                    padding: "12px 18px",
                     fontSize: "1rem",
-                    borderRadius: "8px",
-                    border: "1px solid #000",
+                    borderRadius: "8px 0 0 8px",
+                    border: "none",
                     backgroundColor: "#333",
                     color: "#fff",
                     cursor: "pointer",
-                    minWidth: "240px"
+                    minWidth: "180px",
+                    textAlign: "left",
+                    transition: "all 0.2s cubic-bezier(.4,0,.2,1)",
+                    boxShadow: "none",
+                    marginLeft: 0,
+                    position: "relative"
+                }}
+                onMouseOver={e => {
+                    e.currentTarget.style.backgroundColor = '#4caf50';
+                    e.currentTarget.style.transform = 'translateX(10px) scale(1.08)';
+                    e.currentTarget.style.boxShadow = '2px 4px 16px 0 rgba(0,0,0,0.15)';
+                }}
+                onMouseOut={e => {
+                    e.currentTarget.style.backgroundColor = '#333';
+                    e.currentTarget.style.transform = 'none';
+                    e.currentTarget.style.boxShadow = 'none';
                 }}
                 >
                 {btn.texto}
