@@ -7,6 +7,7 @@ function BuscarRadio() {
     const [radio, setRadio] = useState(null);
     const [error, setError] = useState('');
     const [persona, setPersona] = useState(null);
+    const [accesorios, setAccesorios] = useState([]);
 
     const buscarRadio = async () => {
         if (!serial){
@@ -16,6 +17,7 @@ function BuscarRadio() {
         try {
             const res = await axios.get(`http://localhost:8000/equipos/buscar/${serial}`);
             setRadio(res.data);
+            setAccesorios(res.data.accesorios || []);
             setError('');
             // Si el radio tiene campo asignado, busca la persona asociada
             if (res.data && res.data.asignado) {
@@ -31,6 +33,7 @@ function BuscarRadio() {
             console.log("Radio encontrado: ", res.data);
         } catch (err) {
             setRadio(null);
+            setAccesorios([]);
             setPersona(null);
             if (err.response && err.response.status === 404) {
                 setError('Radio no encontrado.');
@@ -64,6 +67,16 @@ function BuscarRadio() {
                     <p><strong>Serial:</strong> {radio.serial}</p>
                     <p><strong>Asignado a:</strong> {persona ? `${persona.nombres} ${persona.apellidos}`: (radio.asignado || 'No asignado')}</p>
                     <p><strong>Cedula del asignado:</strong>{persona ? `${persona.cedula}` : (radio.asignado || 'No asignado')}</p>
+
+                    <h4>Accesorios asignados:</h4>
+                    {accesorios.length > 0 ? (
+                        <ul>{accesorios.map((acc) => (
+                            <li key={acc.id_accesorio}>{acc.nombre}</li>
+                        ))}
+                        </ul>
+                    ) :(
+                        <p>Sin accesorios asignados</p>
+                    )}
                 </div>
             )}
 

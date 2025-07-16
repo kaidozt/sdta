@@ -27,7 +27,9 @@ function AñadirRadio({ onGuardar }) {
             categoria,
             tipo,
             n_bien: nBien,
-            estado
+            estado,
+            user: null,
+            accesorios: []
         };
 
         onGuardar(nuevoRadio);

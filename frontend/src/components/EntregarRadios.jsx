@@ -1,10 +1,26 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 
 function EntregarRadios (){
     const [serial, setSerial] = useState('');
     const [cedula, setCedula] = useState('');
     const [mensaje, setMensaje] = useState('');
+    const [accesorios, setAccesorios] = useState([]);
+    const [seleccionados,setSeleccionados] = useState([]);
+
+    useEffect(() => {
+        axios.get('http://localhost:8000/accesorios')
+            .then(res => setAccesorios(res.data))
+            .catch(() => setMensaje("Error al cargar accesorios"));
+    }, []);
+    
+    const manejarCheckbox = (id) => {
+        if (seleccionados.includes(id)){
+            setSeleccionados(seleccionados.filter(a => a !== id));
+        } else {
+            setSeleccionados([...seleccionados, id]);
+        }
+    };
 
     const manejarSubmit = async (e) => {
         e.preventDefault();
@@ -40,6 +56,21 @@ function EntregarRadios (){
             onChange={(e) => setCedula(e.target.value)}
             style={inputEstilo}
             />
+
+            <div style={{ color: "white" }}>
+                <p>Selecciona los accesorios entregados:</p>
+                {accesorios.map(acc => (
+                    <label key={acc.id_accesorio} style={{ display: "block"}}>
+                        <input
+                            type='checkbox'
+                            checked={seleccionados.includes(acc.id_accesorio)}
+                            onChange={() => manejarCheckbox(acc.id_accesorio)}
+                        />
+                        {acc.nombre}
+                    </label>
+                ))}
+            </div>
+
             <button type='submit' style={botonEstilo}>Entregar Radio</button>
             {mensaje && <p>{mensaje}</p>}
         </form>

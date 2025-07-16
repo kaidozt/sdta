@@ -1,10 +1,11 @@
 from fastapi import FastAPI, HTTPException
 from back.database import get_db
-from back.models import Persona, Equipo, Accesorios
-from back.schemas import PersonaOut, EquipoOut, PersonaCreate, EquipoCreate
+from back.models import Persona, Equipo, Accesorios, EquipoAccesorio
+from back.schemas import PersonaOut, EquipoOut, PersonaCreate, EquipoCreate, AccesorioOut
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import datetime
+from typing import List
 
 
 app = FastAPI()
@@ -12,7 +13,7 @@ app = FastAPI()
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -20,6 +21,10 @@ app.add_middleware(
 
 # RUTAS
 from sqlalchemy.exc import IntegrityError
+
+@app.get("/")
+def root():
+    return {"mensaje": "API de gestión de radios activa"}
 
 @app.post("/personas/")
 def agregar_persona(persona: PersonaCreate):
@@ -41,6 +46,10 @@ def agregar_persona(persona: PersonaCreate):
 @app.post("/equipos/")
 def agregar_radios(equipo: EquipoCreate):
     db = next(get_db())
+
+    data = equipo.dict()
+    accesorios = data.pop("accesorios", None)
+
     db_equipo = Equipo(**equipo.dict())
     db.add(db_equipo)
     try:
@@ -85,10 +94,20 @@ def radios_asignados(cedula: str):
 def buscar_equipos_por_serial(serial: str):
     db = next(get_db())
     equipo = db.query(Equipo).filter(Equipo.serial == serial).first()
-    if equipo:
-        return equipo
-    else:
+    if not equipo:
         raise HTTPException(status_code=404, detail="Equipo no encontrado")
+    
+    accesorios = (
+        db.query(Accesorios)
+        .join(EquipoAccesorio, Accesorios.id_accesorio == EquipoAccesorio.id_accesorio)
+        .filter(EquipoAccesorio.id_equipo == equipo.id_equipos)
+        .all()
+    )
+
+    return {
+        **equipo.__dict__,
+        "accesorios": accesorios
+    }
     
 @app.get("/personas/cantidad_radios/{cedula}")
 def obtener_cantidad_radios(cedula: str):
@@ -205,3 +224,8 @@ def total_radios_alias():
     db = next(get_db())
     total = db.query(Equipo).count()
     return {"total_radios": total}
+
+@app.get("/accesorios", response_model=List[AccesorioOut])
+def obtener_accesorios():
+    db = next(get_db())
+    return db.query(Accesorios).all()
