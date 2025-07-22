@@ -59,6 +59,9 @@ class EquipoOut(EquipoBase):
         "from_attributes": True
     }
 
+class EquipoEntregaRequest(BaseModel):
+    accesorios: List[int] = []
+
 
 
     

@@ -19,7 +19,7 @@ function BuscarRadio() {
             setRadio(res.data);
             setAccesorios(res.data.accesorios || []);
             setError('');
-            // Si el radio tiene campo asignado, busca la persona asociada
+            
             if (res.data && res.data.asignado) {
                 try {
                     const resPersona = await axios.get(`http://localhost:8000/personas/${res.data.asignado}`);

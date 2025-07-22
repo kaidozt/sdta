@@ -30,8 +30,9 @@ function EntregarRadios (){
             return;
         }
         try {
-            //Se llama al endpoint
-            const res = await axios.put(`http://localhost:8000/equipos/entregar/${serial}?cedula=${cedula}`,);
+            const res = await axios.put(`http://localhost:8000/equipos/entregar/${serial}?cedula=${cedula}`, {
+                accesorios: seleccionados
+            });
             setMensaje(res.data.mensaje);
         } catch (error){
             if (error.response && error.response.data && error.response.data.detail){

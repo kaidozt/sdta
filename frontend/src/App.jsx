@@ -7,6 +7,7 @@ import AñadirPersona from './components/AñadirPersona';
 import AñadirRadio from './components/AñadirRadio';
 import EntregarRadios from './components/EntregarRadios';
 import EditarDatos from './components/EditarDatos';
+import PonerDeVacaciones from './components/PonerDeVacaciones';
 import axios from 'axios';
 
 function App() {
@@ -130,6 +131,7 @@ function App() {
           {vista === "entregarRadio" && <EntregarRadios />}
           {vista === "editarDatos" && <EditarDatos/>}
           {vista === "buscarRadio" && <BuscarRadio />}
+          {vista === "ponerdeVacaciones" && <PonerDeVacaciones/>}
 
           {vista && (
             <div style={{ marginTop: "2rem" }}>
