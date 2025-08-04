@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Optional
 from datetime import date
 
 # PERSONA
@@ -34,35 +34,36 @@ class EquipoBase(BaseModel):
     n_bien: Optional[str] = None
     estado: Optional[str] = None
     asignado: Optional[str] = None
-    #accesorios se asignan en la entrega del radio
-
 
 class EquipoCreate(EquipoBase):
     pass
 
+class EquipoOut(EquipoBase):
+    id_equipos: int
+    model_config = {
+        "from_attributes": True
+    }
+
+# ACCESORIOS
 class AccesorioBase(BaseModel):
-    nombre: str
+    fuente: Optional[str]
+    microfono: Optional[str]
+    cables: Optional[str]
+    base: Optional[str]
+    corneta: Optional[str]
+    bateria: Optional[str]
+    antena: Optional[str]
+    clip: Optional[str]
+    cargador: Optional[str]
+    obs: Optional[str]
+    id_equipos: Optional[int]
 
 class AccesorioCreate(AccesorioBase):
     pass
 
 class AccesorioOut(AccesorioBase):
-    id_accesorio: int
-    nombre: str
-    class Config:
-        orm_mode = True
-    
-class EquipoOut(EquipoBase):
-    id_equipos: int
-    accesorios: List[AccesorioOut] = []
+    id_accesorios: int
     model_config = {
         "from_attributes": True
     }
-
-class EquipoEntregaRequest(BaseModel):
-    accesorios: List[int] = []
-
-
-
-    
 

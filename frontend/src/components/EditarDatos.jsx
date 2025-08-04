@@ -18,7 +18,7 @@ export default function EditarDatos({persona, onActualizar}){
                 const res = await axios.get(`http://localhost:8000/personas/${busqueda}`);
                 setDatos(res.data);
             }else {
-                const res = await axios.get(`http://localhost:8000/equipos/buscar/${busqueda}`);
+                const res = await axios.get(`http://localhost:8000/equipos/${busqueda}`);
                 setDatos(res.data);
             }
         }catch (error) {
@@ -40,7 +40,7 @@ export default function EditarDatos({persona, onActualizar}){
                 setMensaje("Persona actualizada con éxito");
                 setTimeout(() => setMensaje(""), 3000);
             } else {
-                await axios.put(`http://localhost:8000/equipos/buscar/${busqueda}`, datos);
+                await axios.put(`http://localhost:8000/equipos/${busqueda}`, datos);
                 setMensaje("Equipo actualizado correctamente");
                 setTimeout(() => setMensaje(""), 3000);
             }

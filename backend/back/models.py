@@ -1,6 +1,10 @@
 from sqlalchemy import Column, Integer, String, Date, ForeignKey
 from sqlalchemy.orm import relationship
 from back.database import Base
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+
 class Persona(Base):
     __tablename__ = "personas"
 
@@ -30,23 +34,22 @@ class Equipo(Base):
     asignado = Column(String(100))
 
     personas = relationship("Persona", back_populates="equipo")
-    equipo_accesorios = relationship("EquipoAccesorio", back_populates="equipo")
+    accesorios = relationship("Accesorios", back_populates="equipo")
 
 class Accesorios(Base):
     __tablename__ = "accesorios"
 
-    id_accesorio = Column(Integer, primary_key=True, index=True)
-    nombre = Column(String(100))
+    id_accesorios = Column(Integer, primary_key=True, index=11)
+    fuente = Column(String(50))
+    microfono = Column(String(50))
+    cables = Column(String(50))
+    base = Column(String(50))
+    corneta = Column(String(50))
+    bateria = Column(String(50))
+    antena = Column(String(50))
+    clip = Column(String(50))
+    cargador = Column(String(50))
+    obs = Column(String(50))
+    id_equipos = Column(Integer, ForeignKey("equipos.id_equipos"))
 
-    equipo_accesorios = relationship("EquipoAccesorio", back_populates="accesorio")
-
-
-class EquipoAccesorio(Base):
-    __tablename__ = "equipo_accesorio"
-
-    id = Column(Integer, primary_key=True, index=True)
-    id_equipo = Column(Integer, ForeignKey("equipos.id_equipos"))
-    id_accesorio = Column(Integer, ForeignKey("accesorios.id_accesorio"))
-
-    equipo = relationship("Equipo", back_populates="equipo_accesorios")
-    accesorio = relationship("Accesorios", back_populates="equipo_accesorios")
+    equipo = relationship("Equipo", back_populates="accesorios")

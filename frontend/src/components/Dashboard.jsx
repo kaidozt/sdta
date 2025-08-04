@@ -5,40 +5,24 @@ function Dashboard({ onSeleccion }) {
         {texto: "Buscar por Cédula", valor: "buscarPersona"},
         {texto: "Buscar por Serial", valor: "buscarRadio"},
         {texto: "Entregar Radio", valor: "entregarRadio"},
-        {texto: "Editar Datos", valor: "editarDatos"},
-        {texto: "Vacaciones", valor: "ponerdeVacaciones"}
+        {texto: "Editar Datos", valor: "editarDatos"}
     ];
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", gap: "10px", alignItems: "flex-start", width: "100%" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "15px", alignItems: "center"}}>
             {botones.map((btn) =>(
                 <button
                 key={btn.valor}
                 onClick={() => onSeleccion(btn.valor)}
                 style={{
-                    padding: "12px 18px",
+                    padding: "12px 24px",
                     fontSize: "1rem",
-                    borderRadius: "8px 0 0 8px",
-                    border: "none",
+                    borderRadius: "8px",
+                    border: "1px solid #000",
                     backgroundColor: "#333",
                     color: "#fff",
                     cursor: "pointer",
-                    minWidth: "180px",
-                    textAlign: "left",
-                    transition: "all 0.2s cubic-bezier(.4,0,.2,1)",
-                    boxShadow: "none",
-                    marginLeft: 0,
-                    position: "relative"
-                }}
-                onMouseOver={e => {
-                    e.currentTarget.style.backgroundColor = '#4caf50';
-                    e.currentTarget.style.transform = 'translateX(10px) scale(1.08)';
-                    e.currentTarget.style.boxShadow = '2px 4px 16px 0 rgba(0,0,0,0.15)';
-                }}
-                onMouseOut={e => {
-                    e.currentTarget.style.backgroundColor = '#333';
-                    e.currentTarget.style.transform = 'none';
-                    e.currentTarget.style.boxShadow = 'none';
+                    minWidth: "240px"
                 }}
                 >
                 {btn.texto}

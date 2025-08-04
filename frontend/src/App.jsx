@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import logo from './assets/telecomAragua.jpg';
 import Dashboard from './components/Dashboard';
 import BuscarPersona from './components/BuscarPersona';
@@ -7,20 +7,10 @@ import AñadirPersona from './components/AñadirPersona';
 import AñadirRadio from './components/AñadirRadio';
 import EntregarRadios from './components/EntregarRadios';
 import EditarDatos from './components/EditarDatos';
-import PonerDeVacaciones from './components/PonerDeVacaciones';
 import axios from 'axios';
 
 function App() {
   const [vista, setVista] = useState(null);
-  const [totalRadios, setTotalRadios] = useState(null);
-
-  useEffect(() => {
-    if (!vista) {
-      axios.get("http://localhost:8000/equipos/total")
-        .then(res => setTotalRadios(res.data.total_radios))
-        .catch(() => setTotalRadios(null));
-    }
-  }, [vista]);
   
   async function handleGuardarPersona(persona){
     try {
@@ -50,7 +40,7 @@ function App() {
         color: "#ffffff",
         display: "flex",
         flexDirection: "column",
-        alignItems: "stretch",
+        alignItems: "center",
       }}
     >
       <header style={{
@@ -77,80 +67,40 @@ function App() {
         />
         <h1 style={{ margin: 0, fontSize: "2rem", letterSpacing: 1 }}>Gestión de Radios</h1>
       </header>
-      <div style={{ display: "flex", flex: 1, width: "100%", minHeight: "80vh" }}>
-        {/* Sidebar */}
-        <div style={{
-          width: 220,
-          background: "#232323",
-          padding: "2rem 0.5rem",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-start",
-          borderRight: "1px solid #333",
-          minHeight: "80vh"
-        }}>
-          {!vista && <Dashboard onSeleccion={setVista} />}
-        </div>
-        {/* Main content */}
-        <div
-          style={{
-            flex: 1,
-            textAlign: "center",
-            padding: "2rem",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          {!vista && (
-            <div style={{
-              background: '#232323',
-              borderRadius: 12,
-              padding: '2.5rem 2rem',
-              boxShadow: '0 2px 16px 0 rgba(0,0,0,0.10)',
-              marginTop: 40,
-              minWidth: 320,
-              color: '#fff',
-              fontSize: '1.3rem',
-              fontWeight: 500,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 16
-            }}>
-              <span>📡 <b>Total de radios registrados:</b></span>
-              <span style={{ fontSize: 38, color: '#4caf50', fontWeight: 700 }}>
-                {totalRadios !== null ? totalRadios : 'Cargando...'}
-              </span>
-            </div>
-          )}
-          {vista === "buscarPersona" && <BuscarPersona/>}
-          {vista === "añadirRadio" && <AñadirRadio onGuardar={handleGuardarRadio}/>}
-          {vista === "añadirPersona" && <AñadirPersona   onGuardar={handleGuardarPersona}/>}
-          {vista === "entregarRadio" && <EntregarRadios />}
-          {vista === "editarDatos" && <EditarDatos/>}
-          {vista === "buscarRadio" && <BuscarRadio />}
-          {vista === "ponerdeVacaciones" && <PonerDeVacaciones/>}
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "500px",
+          textAlign: "center",
+          padding: "2rem",
+        }}
+      >
+        
+        {!vista && <Dashboard onSeleccion={setVista} />}
+        {vista === "buscarPersona" && <BuscarPersona/>}
+        {vista === "añadirRadio" && <AñadirRadio onGuardar={handleGuardarRadio}/>}
+        {vista === "añadirPersona" && <AñadirPersona   onGuardar={handleGuardarPersona}/>}
+        {vista === "entregarRadio" && <EntregarRadios />}
+        {vista === "editarDatos" && <EditarDatos/>}
+        {vista === "buscarRadio" && <BuscarRadio />}
 
-          {vista && (
-            <div style={{ marginTop: "2rem" }}>
-              <button
-                onClick={() => setVista(null)}
-                style={{
-                  background: "#333",
-                  color: "white",
-                  padding: "10px 20px",
-                  border: "none",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                }}
-              >
-                Volver al dashboard
-              </button>
-            </div>
-          )}
-        </div>
+        {vista && (
+          <div style={{ marginTop: "2rem" }}>
+            <button
+              onClick={() => setVista(null)}
+              style={{
+                background: "#333",
+                color: "white",
+                padding: "10px 20px",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+              }}
+            >
+              Volver al dashboard
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

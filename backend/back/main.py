@@ -1,31 +1,25 @@
 from fastapi import FastAPI, HTTPException
 from back.database import get_db
-from back.models import Persona, Equipo, Accesorios, EquipoAccesorio
-from back.schemas import PersonaOut, EquipoOut, PersonaCreate, EquipoCreate, AccesorioOut
+from back.models import Persona, Equipo, Accesorios
+from back.schemas import PersonaOut, EquipoOut, PersonaCreate, EquipoCreate
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import datetime
-from typing import List
 
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy import func
 
 app = FastAPI()
 
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # RUTAS
-
-@app.get("/")
-def root():
-    return {"mensaje": "API de gestión de radios activa"}
+from sqlalchemy.exc import IntegrityError
 
 @app.post("/personas/")
 def agregar_persona(persona: PersonaCreate):
@@ -47,10 +41,6 @@ def agregar_persona(persona: PersonaCreate):
 @app.post("/equipos/")
 def agregar_radios(equipo: EquipoCreate):
     db = next(get_db())
-
-    data = equipo.dict()
-    accesorios = data.pop("accesorios", None)
-
     db_equipo = Equipo(**equipo.dict())
     db.add(db_equipo)
     try:
@@ -67,8 +57,7 @@ def agregar_radios(equipo: EquipoCreate):
 @app.get("/personas/{cedula}", response_model=PersonaOut)
 def buscar_persona_por_cedula(cedula: str):
     db = next(get_db())
-    normalized_cedula = cedula.replace(",", "")
-    persona = db.query(Persona).filter(func.replace(Persona.cedula, ",", "") == normalized_cedula).first()
+    persona = db.query(Persona).filter(Persona.cedula == cedula).first()
     if persona:
         return persona
     else:
@@ -92,31 +81,14 @@ def radios_asignados(cedula: str):
         raise HTTPException(status_code=404, detail="No se encontraron radios asignados a esta persona")
 
 
-@app.get("/equipos/buscar/{serial}", response_model=EquipoOut)
+@app.get("/equipos/{serial}", response_model=EquipoOut)
 def buscar_equipos_por_serial(serial: str):
     db = next(get_db())
     equipo = db.query(Equipo).filter(Equipo.serial == serial).first()
-    if not equipo:
+    if equipo:
+        return equipo
+    else:
         raise HTTPException(status_code=404, detail="Equipo no encontrado")
-    
-    accesorios = (
-        db.query(Accesorios)
-        .join(EquipoAccesorio, Accesorios.id_accesorio == EquipoAccesorio.id_accesorio)
-        .filter(EquipoAccesorio.id_equipo == equipo.id_equipos)
-        .all()
-    )
-    persona = None
-    if equipo.asignado:
-        persona_obj = db.query(Persona).filter(Persona.cedula == equipo.asignado).first()
-        if persona_obj:
-            persona = f"{persona_obj.nombres} {persona_obj.apellidos}"
-    equipo_dict = equipo.__dict__.copy()
-    equipo_dict["asignado"] = persona
-
-    return {
-        **equipo_dict,
-        "accesorios": accesorios
-    }
     
 @app.get("/personas/cantidad_radios/{cedula}")
 def obtener_cantidad_radios(cedula: str):
@@ -125,11 +97,8 @@ def obtener_cantidad_radios(cedula: str):
     return {"cedula": cedula, "cantidad_radios": cantidad_radios}
 
 
-from fastapi import Body
-from back.schemas import EquipoEntregaRequest
-
 @app.put("/equipos/entregar/{serial}")
-def entregar_radio(serial: str, cedula: str, request: EquipoEntregaRequest = Body(...)):
+def entregar_radio(serial: str, cedula: str):
     db = next(get_db())
     # Busca el equipo por serial
     equipo = db.query(Equipo).filter(Equipo.serial == serial).first()
@@ -149,14 +118,6 @@ def entregar_radio(serial: str, cedula: str, request: EquipoEntregaRequest = Bod
     #Actulaiza los campos de la persona
     persona.id_equipos = equipo.id_equipos
     persona.entrega = datetime.date.today()
-
-    # Actualiza accesorios asignados
-    # Elimina los accesorios existentes
-    db.query(EquipoAccesorio).filter(EquipoAccesorio.id_equipo == equipo.id_equipos).delete()
-    # Agrega los nuevos accesorios
-    for id_acc in request.accesorios:
-        nuevo_accesorio = EquipoAccesorio(id_equipo=equipo.id_equipos, id_accesorio=id_acc)
-        db.add(nuevo_accesorio)
 
     try:
         db.commit()
@@ -229,62 +190,6 @@ def eliminar_equipo(serial: str):
         db.delete(db_equipo)
         db.commit()
         return {"mensaje": "Equipo eliminado con éxito"}
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.get("/equipos/totales")
-def total_radios():
-    db = next(get_db())
-    total = db.query(Equipo).count()
-    return {"total_radios": total}
-
-@app.get("/equipos/total")
-def total_radios_alias():
-    db = next(get_db())
-    total = db.query(Equipo).count()
-    return {"total_radios": total}
-
-@app.get("/accesorios", response_model=List[AccesorioOut])
-def obtener_accesorios():
-    db = next(get_db())
-    return db.query(Accesorios).all()
-
-@app.put("/personas/poner_de_vacaciones/")
-def poner_de_vacaciones():
-    db = next(get_db())
-    personas_con_radio = db.query(Persona).filter(Persona.id_equipos != None).all()
-    count = 0
-    for persona in personas_con_radio:
-        equipo = db.query(Equipo).filter(Equipo.id_equipos == persona.id_equipos).first()
-        if equipo:
-            equipo.estado = "vacaciones"
-            equipo.asignado = None
-            equipo.user = None
-        persona.id_equipos = None
-        count += 1
-    try:
-        db.commit()
-        return {"mensaje": f"{count} radios puestos de vacaciones y personas actualizadas."}
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.put("/equipos/poner_de_vacaciones/{serial}")
-def poner_radio_de_vacaciones(serial: str):
-    db = next(get_db())
-    equipo = db.query(Equipo).filter(Equipo.serial == serial).first()
-    if not equipo:
-        raise HTTPException(status_code=404, detail="Equipo no encontrado")
-    persona = db.query(Persona).filter(Persona.id_equipos == equipo.id_equipos).first()
-    if persona:
-        persona.id_equipos = None
-    equipo.estado = "vacaciones"
-    equipo.asignado = None
-    equipo.user = None
-    try:
-        db.commit()
-        return {"mensaje": f"Radio {serial} puesto de vacaciones con éxito."}
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
