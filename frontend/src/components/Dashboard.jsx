@@ -13,8 +13,7 @@ function Dashboard({ onSeleccion }) {
         {texto: "Buscar por Cédula", valor: "buscarPersona"},
         {texto: "Buscar por Serial", valor: "buscarRadio"},
         {texto: "Entregar Radio", valor: "entregarRadio"},
-        {texto: "Editar Datos", valor: "editarDatos"},
-        {texto: "Vacaciones", valor: "ponerdeVacaciones"}
+        {texto: "Editar Datos", valor: "editarDatos"}
     ];
 
     const userFunctions = [
@@ -52,6 +51,7 @@ function Dashboard({ onSeleccion }) {
     }, []);
 
     return (
+<<<<<<< HEAD
         <>
             <button 
                 className="mobile-menu-toggle"
@@ -90,6 +90,28 @@ function Dashboard({ onSeleccion }) {
                 </div>
             </div>
         </>
+=======
+        <div style={{ display: "flex", flexDirection: "column", gap: "15px", alignItems: "center"}}>
+            {botones.map((btn) =>(
+                <button
+                key={btn.valor}
+                onClick={() => onSeleccion(btn.valor)}
+                style={{
+                    padding: "12px 24px",
+                    fontSize: "1rem",
+                    borderRadius: "8px",
+                    border: "1px solid #000",
+                    backgroundColor: "#333",
+                    color: "#fff",
+                    cursor: "pointer",
+                    minWidth: "240px"
+                }}
+                >
+                {btn.texto}
+                </button>
+            ))}
+        </div>
+>>>>>>> cf513bb29e08aba1b17ad15ac051c63975ea3a94
     );
 }
 
