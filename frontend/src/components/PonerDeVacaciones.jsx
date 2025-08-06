@@ -52,7 +52,7 @@ function PonerDeVacaciones() {
                 style={inputStyle}
             />
             {persona && <p>Asignado a: {persona}</p>}
-            <button onClick={handleClick} style={buttonStyle}>Poner de Vacaciones</button>
+            <button onClick={handleClick} style={buttonStyle}>Vacaciones</button>
             {mensaje && <p style={{ marginTop: '10px' }}>{mensaje}</p>}
         </div>
     );

@@ -62,6 +62,37 @@ class EquipoOut(EquipoBase):
 class EquipoEntregaRequest(BaseModel):
     accesorios: List[int] = []
 
+# AUTENTICACIÓN
+class UsuarioCreate(BaseModel):
+    username: str
+    password: str
+    role: str = "admin"
+    nombre: Optional[str] = None
+    email: Optional[str] = None
+
+class UsuarioLogin(BaseModel):
+    username: str
+    password: str
+
+class UsuarioOut(BaseModel):
+    id: int
+    username: str
+    role: str
+    nombre: Optional[str] = None
+    email: Optional[str] = None
+    estado: bool
+
+    class Config:
+        from_attributes = True
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    username: Optional[str] = None
+    role: Optional[str] = None
+
 
 
     

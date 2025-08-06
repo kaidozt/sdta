@@ -1,6 +1,21 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from back.database import Base
+
+class Usuario(Base):
+    __tablename__ = "usuarios"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String(50), unique=True, index=True, nullable=False)
+    password_hash = Column(String(255), nullable=False)
+    role = Column(String(20), default="usuario")
+    estado = Column(Boolean, default=True)
+    nombre = Column(String(100))
+    email = Column(String(100), unique=True, index=True)
+
+    def __repr__(self):
+        return f"<Usuario(username='{self.username}', role='{self.role}')>"
+
 class Persona(Base):
     __tablename__ = "personas"
 
@@ -39,7 +54,6 @@ class Accesorios(Base):
     nombre = Column(String(100))
 
     equipo_accesorios = relationship("EquipoAccesorio", back_populates="accesorio")
-
 
 class EquipoAccesorio(Base):
     __tablename__ = "equipo_accesorio"

@@ -1,14 +1,15 @@
-from fastapi import FastAPI, HTTPException
-from back.database import get_db
-from back.models import Persona, Equipo, Accesorios, EquipoAccesorio
+from fastapi import FastAPI, HTTPException, Depends
+from back.database import get_db, engine
+from back.models import Persona, Equipo, Accesorios, EquipoAccesorio, Usuario
 from back.schemas import PersonaOut, EquipoOut, PersonaCreate, EquipoCreate, AccesorioOut
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import datetime
 from typing import List
-
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import func
+from back.auth import router as auth_router
+from back.security import get_current_user, require_admin_role, require_user_role
 
 app = FastAPI()
 
@@ -21,6 +22,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Include authentication routes
+app.include_router(auth_router)
+
 # RUTAS
 
 @app.get("/")
@@ -28,7 +32,7 @@ def root():
     return {"mensaje": "API de gestión de radios activa"}
 
 @app.post("/personas/")
-def agregar_persona(persona: PersonaCreate):
+def agregar_persona(persona: PersonaCreate, current_user=Depends(require_user_role)):
     db = next(get_db())
     db_persona = Persona(**persona.dict())
     db.add(db_persona)
@@ -43,9 +47,8 @@ def agregar_persona(persona: PersonaCreate):
         else:
             raise HTTPException(status_code=400, detail="Error de integridad en la base de datos.")
 
-
 @app.post("/equipos/")
-def agregar_radios(equipo: EquipoCreate):
+def agregar_radios(equipo: EquipoCreate, current_user=Depends(require_user_role)):
     db = next(get_db())
 
     data = equipo.dict()
@@ -65,7 +68,7 @@ def agregar_radios(equipo: EquipoCreate):
             raise HTTPException(status_code=400, detail="Error de integridad en la base de datos.")
 
 @app.get("/personas/{cedula}", response_model=PersonaOut)
-def buscar_persona_por_cedula(cedula: str):
+def buscar_persona_por_cedula(cedula: str, current_user=Depends(require_user_role)):
     db = next(get_db())
     normalized_cedula = cedula.replace(",", "")
     persona = db.query(Persona).filter(func.replace(Persona.cedula, ",", "") == normalized_cedula).first()
@@ -75,7 +78,7 @@ def buscar_persona_por_cedula(cedula: str):
         raise HTTPException(status_code=404, detail="Persona no encontrada")
     
 @app.get("/personas/{cedula}/radios")
-def radios_asignados(cedula: str):
+def radios_asignados(cedula: str, current_user=Depends(require_user_role)):
     db = next(get_db())
     radios = db.query(Equipo).filter(Equipo.asignado == cedula).all()
     if radios:
@@ -91,9 +94,8 @@ def radios_asignados(cedula: str):
     else:
         raise HTTPException(status_code=404, detail="No se encontraron radios asignados a esta persona")
 
-
 @app.get("/equipos/buscar/{serial}", response_model=EquipoOut)
-def buscar_equipos_por_serial(serial: str):
+def buscar_equipos_por_serial(serial: str, current_user=Depends(require_user_role)):
     db = next(get_db())
     equipo = db.query(Equipo).filter(Equipo.serial == serial).first()
     if not equipo:
@@ -119,17 +121,16 @@ def buscar_equipos_por_serial(serial: str):
     }
     
 @app.get("/personas/cantidad_radios/{cedula}")
-def obtener_cantidad_radios(cedula: str):
+def obtener_cantidad_radios(cedula: str, current_user=Depends(require_user_role)):
     db = next(get_db())
     cantidad_radios = db.query(Equipo).filter(Equipo.asignado == cedula).count()
     return {"cedula": cedula, "cantidad_radios": cantidad_radios}
-
 
 from fastapi import Body
 from back.schemas import EquipoEntregaRequest
 
 @app.put("/equipos/entregar/{serial}")
-def entregar_radio(serial: str, cedula: str, request: EquipoEntregaRequest = Body(...)):
+def entregar_radio(serial: str, cedula: str, request: EquipoEntregaRequest = Body(...), current_user=Depends(require_user_role)):
     db = next(get_db())
     # Busca el equipo por serial
     equipo = db.query(Equipo).filter(Equipo.serial == serial).first()
@@ -165,9 +166,8 @@ def entregar_radio(serial: str, cedula: str, request: EquipoEntregaRequest = Bod
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
 
-
 @app.put("/personas/{cedula}")
-def editar_persona(cedula: str, persona: PersonaCreate):
+def editar_persona(cedula: str, persona: PersonaCreate, current_user=Depends(require_user_role)):
     db = next(get_db())
     db_persona = db.query(Persona).filter(Persona.cedula == cedula).first()
     if not db_persona:
@@ -186,7 +186,7 @@ def editar_persona(cedula: str, persona: PersonaCreate):
         raise HTTPException(status_code=400, detail="Error de integridad en la base de datos.")
 
 @app.put("/equipos/{serial}")
-def editar_equipo(serial: str, equipo: EquipoCreate):
+def editar_equipo(serial: str, equipo: EquipoCreate, current_user=Depends(require_user_role)):
     db = next(get_db())
     db_equipo = db.query(Equipo).filter(Equipo.serial == serial).first()
     if not db_equipo:
@@ -206,7 +206,7 @@ def editar_equipo(serial: str, equipo: EquipoCreate):
         raise HTTPException(status_code=400, detail="Error de integridad en la base de datos.")
     
 @app.delete("/personas/{cedula}")
-def eliminar_persona(cedula: str):
+def eliminar_persona(cedula: str, current_user=Depends(require_user_role)):
     db = next(get_db())
     db_persona = db.query(Persona).filter(Persona.cedula == cedula).first()
     if not db_persona:
@@ -220,7 +220,7 @@ def eliminar_persona(cedula: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.delete("/equipos/{serial}")
-def eliminar_equipo(serial: str):
+def eliminar_equipo(serial: str, current_user=Depends(require_user_role)):
     db = next(get_db())
     db_equipo = db.query(Equipo).filter(Equipo.serial == serial).first()
     if not db_equipo:
@@ -234,24 +234,24 @@ def eliminar_equipo(serial: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/equipos/totales")
-def total_radios():
+def total_radios(current_user=Depends(require_user_role)):
     db = next(get_db())
     total = db.query(Equipo).count()
     return {"total_radios": total}
 
 @app.get("/equipos/total")
-def total_radios_alias():
+def total_radios_alias(current_user=Depends(require_user_role)):
     db = next(get_db())
     total = db.query(Equipo).count()
     return {"total_radios": total}
 
 @app.get("/accesorios", response_model=List[AccesorioOut])
-def obtener_accesorios():
+def obtener_accesorios(current_user=Depends(require_user_role)):
     db = next(get_db())
     return db.query(Accesorios).all()
 
 @app.put("/personas/poner_de_vacaciones/")
-def poner_de_vacaciones():
+def poner_de_vacaciones(current_user=Depends(require_user_role)):
     db = next(get_db())
     personas_con_radio = db.query(Persona).filter(Persona.id_equipos != None).all()
     count = 0
@@ -271,7 +271,7 @@ def poner_de_vacaciones():
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.put("/equipos/poner_de_vacaciones/{serial}")
-def poner_radio_de_vacaciones(serial: str):
+def poner_radio_de_vacaciones(serial: str, current_user=Depends(require_user_role)):
     db = next(get_db())
     equipo = db.query(Equipo).filter(Equipo.serial == serial).first()
     if not equipo:
@@ -288,3 +288,7 @@ def poner_radio_de_vacaciones(serial: str):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
+
+# Create tables
+from back.database import Base
+Base.metadata.create_all(bind=engine)
